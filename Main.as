@@ -14,61 +14,70 @@ package
 	 */
 	public class Main extends Sprite 
 	{
+		public static const NUM_OF_ROWS : int = 7;
+		public static const NUM_OF_COLS : int = 12;
+		
+		private var blockLayer : Sprite;
+		private var objectLayer : Sprite;
+		
+		private var objectRows : Array;
 		private var blocks : Array;
 		private var dart : Design_Kp000;
 		private var blockCursor : Design_BlockCursor;
 		
 		public function Main()
 		{
-			// Init the map.
+			// Init the map: blocks.
+			addChild(blockLayer = new Sprite());			
 			blocks = new Array();
-			for (var i : int = 0; i < 12; ++i)
+			for (var i : int = 0; i < NUM_OF_COLS; ++i)
 			{
 				blocks[i] = new Array();
-				for (var j : int = 0; j < 7; ++j)
+				for (var j : int = 0; j < NUM_OF_ROWS; ++j)
 				{
 					blocks[i][j] = new EmptyBlock();
-					addChild(blocks[i][j]);
+					blockLayer.addChild(blocks[i][j]);
 					blocks[i][j].x = 40 * i;
 					blocks[i][j].y = 40 * (j+2);
 				}
 			}
 			
-			// Create a dart.
-			dart = new Design_Kp000();
+			// Init the rows for simplistic z-indexing.
+			addChild(objectLayer = new Sprite());
+			objectRows = new Array();
+			for (var k : int = NUM_OF_ROWS; k >= 0; --k)
+			{
+				var r : Sprite = new Sprite();
+				objectLayer.addChild(r);
+				objectRows[k] = r;
+			}
 			
 			blockCursor = new Design_BlockCursor();
+			
+			// Set up the TDBlockEvent handler.
 			addEventListener(TDBlockEvent.BLOCK_CLICKED, blockClickHandler, true);
 		}
 		
-		private function moveDart(e : TDBlockEvent) : void
-		{
-			if (!this.contains(dart))
-			{
-				addChild(dart);
-			}
-			
-			dart.x = e.gridX;
-			dart.y = e.gridY;
-		}
-		
-		private function moveBlockCursor(xIndex : int, yIndex : int) : void
+		private function moveBlockCursorTo(x : int, y : int) : void
 		{			
-			addChildAt(blockCursor, numChildren);
-			trace(getChildIndex(blockCursor));
-				
-			blockCursor.x = blocks[xIndex][yIndex].x + 20;
-			blockCursor.y = blocks[xIndex][yIndex].y - 20;
+			blockLayer.addChild(blockCursor);				
+			blockCursor.x = x;
+			blockCursor.y = y;
+		}
+
+		private function createTowerAt(x : int, y: int) : void
+		{
+			var t : Sprite = TowerFactory.createTower(TowerTypes.DUMMY_TOWER) as Sprite;
+			t.x = x;
+			t.y = y;
+			var rowIndex : int = NUM_OF_ROWS - ((y - 80) / 40) - 1;
+			objectRows[rowIndex].addChild(t);
 		}
 		
 		private function blockClickHandler(e : TDBlockEvent) : void
 		{
-			var xIndex : int = e.gridX / 40;
-			var yIndex : int = e.gridY / 40 - 2;
-			var b : EmptyBlock = blocks[xIndex][yIndex] as EmptyBlock;
-			
-			b.setCursor(blockCursor);
-			b.setOccupant(TowerFactory.createTower(TowerTypes.DUMMY_TOWER) as Sprite);
+			moveBlockCursorTo(e.gridX+20, e.gridY-20);
+			createTowerAt(e.gridX, e.gridY);
 		}
 	}
 }

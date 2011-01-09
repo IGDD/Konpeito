@@ -11,8 +11,6 @@ package Blocks
 	public class EmptyBlock extends Sprite
 	{
 		private var m_design : Sprite;
-		private var m_occupant : Sprite;
-		private var m_cursor : Sprite;
 		
 		public function EmptyBlock() 
 		{
@@ -40,20 +38,6 @@ package Blocks
 		{	
 			dispatchEvent(new TDBlockEvent(TDBlockEvent.BLOCK_CLICKED, this.x, this.y));
 			e.stopPropagation();
-		}
-		
-		public function setOccupant(o : Sprite) : void
-		{
-			m_occupant = o;
-			addChild(m_occupant);
-		}
-		
-		public function setCursor(c : Sprite) : void
-		{
-			m_cursor = c;
-			m_cursor.x = 20;
-			m_cursor.y = -20;
-			addChild(m_cursor);
 		}
 	}
 }
