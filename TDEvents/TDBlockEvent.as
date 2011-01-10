@@ -27,5 +27,10 @@ package TDEvents
 			this.gridX = gridX;
 			this.gridY = gridY;
 		}
+
+                 public override function clone() : Event {
+                        return new TDBlockEvent(type, gridX, gridY, bubbles, cancelable);
+                 }
+  }
 	}
 }
